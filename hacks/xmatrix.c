@@ -1854,6 +1854,7 @@ static XrmOptionDescRec xmatrix_options [] = {
   { "-pipe",	        ".usePipe",		XrmoptionNoArg, "True" },
   { "-no-pipe",	        ".usePipe",		XrmoptionNoArg, "False" },
   { "-program",	        ".program",		XrmoptionSepArg, 0 },
+  { "-mono-foreground",	        "*foreground",		XrmoptionSepArg, 0 },
   { 0, 0, 0, 0 }
 };
 
