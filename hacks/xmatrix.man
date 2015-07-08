@@ -115,6 +115,14 @@ end of a pty or pipe, and any characters that it prints to
 \fIstdout\fP will be placed in the feeders for xmatrix. If the program
 exits, it will be launched again after xmatrix has processed all the
 text it produced.
+
+For example:
+.EX
+xmatrix -program 'echo Hello World'
+xmatrix -ascii -program 'ps -eo comm | rev'
+xmatrix -program 'od -txC -w6 /dev/random'
+xmatrix -program 'cat /dev/random'
+
 .TP 8
 .B \-mono
 Force use of XBM files, which only allows one foreground color.
@@ -124,12 +132,6 @@ Set custom hex colors with -fg and -bg.
 Specify a simple color shift to one of:
 red, blue, green, purple, yellow, aqua, white, grey
 
-For example:
-.EX
-xmatrix -program 'echo Hello World'
-xmatrix -ascii -program 'ps -eo comm | rev'
-xmatrix -program 'od -txC -w6 /dev/random'
-xmatrix -program 'cat /dev/random'
 .EE
 .SH ENVIRONMENT
 .PP

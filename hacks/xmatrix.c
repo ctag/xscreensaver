@@ -231,7 +231,7 @@ typedef struct {
 } m_state;
 
 static void
-edit_image (Display *dpy, char ** bits, int which)
+edit_image (Display *dpy, char ** bits, int which, const char * shift_text)
 {
 	char colors_text[3];
 	char *hex;
@@ -240,7 +240,7 @@ edit_image (Display *dpy, char ** bits, int which)
 	int colors_int;
 	int index;
 	int char_size;
-	const char *shift_text = get_string_resource(dpy, "colorShift", "String");
+	
 	printf("\nColor Shift: %s", shift_text);
 	char_size=sizeof(char);
 	printf("\nBits: %s", bits[3]);
@@ -320,6 +320,7 @@ static void
 load_images_1 (Display *dpy, m_state *state, int which)
 {
 #if defined(HAVE_GDK_PIXBUF) || defined(HAVE_XPM)
+  const char *shift_text = get_string_resource(dpy, "colorShift", "String");
   if (!get_boolean_resource (dpy, "mono", "Boolean") &&
       state->xgwa.depth > 1)
     {
@@ -328,7 +329,10 @@ load_images_1 (Display *dpy, m_state *state, int which)
          (state->small_p ? matrix2b_xpm : matrix2_xpm));
 
 		/* Edit 2D array of char data here */
-		edit_image(dpy, bits, which);
+		if (shift_text != NULL)
+		{
+			edit_image(dpy, bits, which, shift_text);
+		}
 
       state->images[which] =
         xpm_data_to_pixmap (state->dpy, state->window, bits,
