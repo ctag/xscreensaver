@@ -26,6 +26,8 @@ xmatrix - simulates the computer displays from the movie
 [\-mode \fImode\fP]
 [\-phone \fInumber\fP]
 [\-fps]
+[\-mono [\-fg #XXXXXX] [\-bg #XXXXXX]]
+[\-color\-shift "color"]
 .SH DESCRIPTION
 The \fIxmatrix\fP program draws the 2D "digital rain" effect, as seen on
 the computer monitors in the Wachowski brothers' film, "The Matrix".
@@ -113,6 +115,14 @@ end of a pty or pipe, and any characters that it prints to
 \fIstdout\fP will be placed in the feeders for xmatrix. If the program
 exits, it will be launched again after xmatrix has processed all the
 text it produced.
+.TP 8
+.B \-mono
+Force use of XBM files, which only allows one foreground color.
+Set custom hex colors with -fg and -bg.
+.TP 8
+.B \-color-shift
+Specify a simple color shift to one of:
+red, blue, green, purple, yellow, aqua, white, grey
 
 For example:
 .EX

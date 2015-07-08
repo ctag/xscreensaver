@@ -230,6 +230,91 @@ typedef struct {
   int delay;
 } m_state;
 
+static void
+edit_image (Display *dpy, char ** bits, int which)
+{
+	char colors_text[3];
+	char *hex;
+	char dark_hex[3];
+	char light_hex[3];
+	int colors_int;
+	int index;
+	int char_size;
+	const char *shift_text = get_string_resource(dpy, "colorShift", "String");
+	printf("\nColor Shift: %s", shift_text);
+	char_size=sizeof(char);
+	printf("\nBits: %s", bits[3]);
+	colors_text[0] = bits[0][8];
+	colors_text[1] = bits[0][9];
+	colors_text[2] = '\0';
+	colors_int = atoi(colors_text);
+	printf("\nNumber of colors: %i", colors_int);
+	for (index = 3; index <= colors_int; ++index)
+	{
+		hex = malloc(sizeof(char) * 12);
+		memmove(hex, bits[index], 11*char_size);
+		memmove(dark_hex, hex+5,2*char_size);
+		memmove(light_hex, hex+7,2*char_size);
+		dark_hex[2] = '\0';
+		light_hex[2] = '\0';
+		hex[11] = '\0';
+		printf("\nhex: %s, Dark: %s, Light: %s", bits[index], dark_hex, light_hex);
+		if (!strcasecmp(shift_text, "yellow"))
+		{
+			memmove(hex+5, light_hex, 2*char_size);
+			bits[index]=hex;
+			printf(" New Color: %s", bits[index]);
+		}
+		else if (!strcasecmp(shift_text, "red"))
+		{
+			memmove(hex+5, light_hex, 2*char_size);
+			memmove(hex+7, dark_hex, 2*char_size);
+			bits[index]=hex;
+			printf(" New Color: %s", bits[index]);
+		}
+		else if (!strcasecmp(shift_text, "blue"))
+		{
+			memmove(hex+9, light_hex, 2*char_size);
+			memmove(hex+7, dark_hex, 2*char_size);
+			bits[index]=hex;
+			printf(" New Color: %s", bits[index]);
+		}
+		else if (!strcasecmp(shift_text, "purple"))
+		{
+			memmove(hex+5, light_hex, 2*char_size);
+			memmove(hex+7, dark_hex, 2*char_size);
+			memmove(hex+9, light_hex, 2*char_size);
+			bits[index]=hex;
+			printf(" New Color: %s", bits[index]);
+		}
+		else if (!strcasecmp(shift_text, "aqua"))
+		{
+			memmove(hex+9, light_hex, 2*char_size);
+			bits[index]=hex;
+			printf(" New Color: %s", bits[index]);
+		}
+		else if (!strcasecmp(shift_text, "white"))
+		{
+			memmove(hex+5, light_hex, 2*char_size);
+			memmove(hex+7, light_hex, 2*char_size);
+			memmove(hex+9, light_hex, 2*char_size);
+			bits[index]=hex;
+			printf(" New Color: %s", bits[index]);
+		}
+		else if (!strcasecmp(shift_text, "grey"))
+		{
+			memmove(hex+5, dark_hex, 2*char_size);
+			memmove(hex+7, dark_hex, 2*char_size);
+			memmove(hex+9, dark_hex, 2*char_size);
+			bits[index]=hex;
+			printf(" New Color: %s", bits[index]);
+		}
+		else if (!strcasecmp(shift_text, "green"))
+		{
+			/* Really? */
+		}
+	}
+}
 
 static void
 load_images_1 (Display *dpy, m_state *state, int which)
@@ -241,6 +326,9 @@ load_images_1 (Display *dpy, m_state *state, int which)
       char **bits =
         (which == 1 ? (state->small_p ? matrix1b_xpm : matrix1_xpm) :
          (state->small_p ? matrix2b_xpm : matrix2_xpm));
+
+		/* Edit 2D array of char data here */
+		edit_image(dpy, bits, which);
 
       state->images[which] =
         xpm_data_to_pixmap (state->dpy, state->window, bits,
@@ -1854,7 +1942,9 @@ static XrmOptionDescRec xmatrix_options [] = {
   { "-pipe",	        ".usePipe",		XrmoptionNoArg, "True" },
   { "-no-pipe",	        ".usePipe",		XrmoptionNoArg, "False" },
   { "-program",	        ".program",		XrmoptionSepArg, 0 },
-  { "-mono-foreground",	        "*foreground",		XrmoptionSepArg, 0 },
+  { "-bg",	        ".background",		XrmoptionSepArg, 0 },
+  { "-fg",	        ".foreground",		XrmoptionSepArg, 0 },
+  { "-color-shift",	        ".colorShift",		XrmoptionSepArg, 0 },
   { 0, 0, 0, 0 }
 };
 
