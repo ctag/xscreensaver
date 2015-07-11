@@ -230,97 +230,100 @@ typedef struct {
   int delay;
 } m_state;
 
+
 static void
-edit_image (Display *dpy, char ** bits, int which, const char * shift_text)
+edit_image (char ** bits, int which, const char * shift_text)
 {
-	char colors_text[3];
-	char *hex;
-	char dark_hex[3];
-	char light_hex[3];
-	int colors_int;
-	int index;
-	int char_size;
+	/* Horrible kludge that will extrapolate the existing "green"
+	 * color codes in the .xpm files to generate other basic 
+	 * RGB mixed colors with varied success. */
 	
-	printf("\nColor Shift: %s", shift_text);
-	char_size=sizeof(char);
-	printf("\nBits: %s", bits[3]);
+	char colors_text[3]; /* Number of colors declared, must be double digit */
+	char *hex; /* The entire hex char* array for a color */
+	char dark_hex[3]; /* the two-digit value for a dark color */
+	char light_hex[3]; /* the two-digit value for a light color */
+	int colors_int; /* the integer corresponding to colors_text */
+	int index; /* loop index */
+	static const int sizeof_char = sizeof(char);
+	
+	/*printf("\nColor Shift: %s", shift_text);*/
+	/*printf("\nBits: %s", bits[3]);*/
 	colors_text[0] = bits[0][8];
 	colors_text[1] = bits[0][9];
 	colors_text[2] = '\0';
 	colors_int = atoi(colors_text);
-	printf("\nNumber of colors: %i", colors_int);
+	/*printf("\nNumber of colors: %i", colors_int);*/
 	for (index = 3; index <= colors_int; ++index)
 	{
-		hex = malloc(sizeof(char) * 12);
-		memmove(hex, bits[index], 11*char_size);
-		memmove(dark_hex, hex+5,2*char_size);
-		memmove(light_hex, hex+7,2*char_size);
+		/* Remember that when your college professor
+		 * says "memory is cheap" that this is the
+		 * road you are led down */
+		hex = malloc(sizeof_char * 12); /* memory is cheap */
+		memmove(hex, bits[index], 11*sizeof_char);
+		memmove(dark_hex, hex+5,2*sizeof_char);
+		memmove(light_hex, hex+7,2*sizeof_char);
 		dark_hex[2] = '\0';
 		light_hex[2] = '\0';
 		hex[11] = '\0';
-		printf("\nhex: %s, Dark: %s, Light: %s", bits[index], dark_hex, light_hex);
+		/*printf("\nhex: %s, Dark: %s, Light: %s", bits[index], dark_hex, light_hex);*/
 		if (!strcasecmp(shift_text, "yellow"))
 		{
-			memmove(hex+5, light_hex, 2*char_size);
+			memmove(hex+5, light_hex, 2*sizeof_char);
 			bits[index]=hex;
-			printf(" New Color: %s", bits[index]);
 		}
 		else if (!strcasecmp(shift_text, "red"))
 		{
-			memmove(hex+5, light_hex, 2*char_size);
-			memmove(hex+7, dark_hex, 2*char_size);
+			memmove(hex+5, light_hex, 2*sizeof_char);
+			memmove(hex+7, dark_hex, 2*sizeof_char);
 			bits[index]=hex;
-			printf(" New Color: %s", bits[index]);
 		}
 		else if (!strcasecmp(shift_text, "blue"))
 		{
-			memmove(hex+9, light_hex, 2*char_size);
-			memmove(hex+7, dark_hex, 2*char_size);
+			memmove(hex+9, light_hex, 2*sizeof_char);
+			memmove(hex+7, dark_hex, 2*sizeof_char);
 			bits[index]=hex;
-			printf(" New Color: %s", bits[index]);
 		}
 		else if (!strcasecmp(shift_text, "purple"))
 		{
-			memmove(hex+5, light_hex, 2*char_size);
-			memmove(hex+7, dark_hex, 2*char_size);
-			memmove(hex+9, light_hex, 2*char_size);
+			memmove(hex+5, light_hex, 2*sizeof_char);
+			memmove(hex+7, dark_hex, 2*sizeof_char);
+			memmove(hex+9, light_hex, 2*sizeof_char);
 			bits[index]=hex;
-			printf(" New Color: %s", bits[index]);
 		}
 		else if (!strcasecmp(shift_text, "aqua"))
 		{
-			memmove(hex+9, light_hex, 2*char_size);
+			memmove(hex+9, light_hex, 2*sizeof_char);
 			bits[index]=hex;
-			printf(" New Color: %s", bits[index]);
 		}
 		else if (!strcasecmp(shift_text, "white"))
 		{
-			memmove(hex+5, light_hex, 2*char_size);
-			memmove(hex+7, light_hex, 2*char_size);
-			memmove(hex+9, light_hex, 2*char_size);
+			memmove(hex+5, light_hex, 2*sizeof_char);
+			memmove(hex+7, light_hex, 2*sizeof_char);
+			memmove(hex+9, light_hex, 2*sizeof_char);
 			bits[index]=hex;
-			printf(" New Color: %s", bits[index]);
 		}
 		else if (!strcasecmp(shift_text, "grey"))
 		{
-			memmove(hex+5, dark_hex, 2*char_size);
-			memmove(hex+7, dark_hex, 2*char_size);
-			memmove(hex+9, dark_hex, 2*char_size);
-			bits[index]=hex;
-			printf(" New Color: %s", bits[index]);
+			memmove(hex+5, dark_hex, 2*sizeof_char);
+			memmove(hex+7, dark_hex, 2*sizeof_char);
+			memmove(hex+9, dark_hex, 2*sizeof_char);
 		}
 		else if (!strcasecmp(shift_text, "green"))
 		{
 			/* Really? */
 		}
+		/*printf(" New Color: %s", bits[index]);*/
 	}
 }
+
 
 static void
 load_images_1 (Display *dpy, m_state *state, int which)
 {
-#if defined(HAVE_GDK_PIXBUF) || defined(HAVE_XPM)
+  /* Get the -color-shift argument. */
   const char *shift_text = get_string_resource(dpy, "colorShift", "String");
+
+#if defined(HAVE_GDK_PIXBUF) || defined(HAVE_XPM)
   if (!get_boolean_resource (dpy, "mono", "Boolean") &&
       state->xgwa.depth > 1)
     {
@@ -331,7 +334,7 @@ load_images_1 (Display *dpy, m_state *state, int which)
 		/* Edit 2D array of char data here */
 		if (shift_text != NULL)
 		{
-			edit_image(dpy, bits, which, shift_text);
+			edit_image(bits, which, shift_text);
 		}
 
       state->images[which] =
@@ -345,8 +348,16 @@ load_images_1 (Display *dpy, m_state *state, int which)
       unsigned long fg, bg;
       state->image_width  = (state->small_p ? matrix1b_width :matrix1_width);
       state->image_height = (state->small_p ? matrix1b_height:matrix1_height);
-      fg = get_pixel_resource(state->dpy, state->xgwa.colormap,
-                              "foreground", "Foreground");
+      if (shift_text != NULL)
+		{
+			fg = get_pixel_resource(state->dpy, state->xgwa.colormap,
+                          "colorShift", "Foreground");
+		}
+	  else
+		{
+			  fg = get_pixel_resource(state->dpy, state->xgwa.colormap,
+									  "foreground", "Foreground");
+		}
       bg = get_pixel_resource(state->dpy, state->xgwa.colormap,
                               "background", "Background");
       state->images[which] =
@@ -688,6 +699,40 @@ set_mode (m_state *state, m_mode mode)
 }
 
 
+static int
+densitizer (int x)
+{
+  /* Best fit curve to replace old table.
+   * Now you can twiddle single % values 
+   * and its technically doing something.
+   * y = a * exp(b*x)
+   * See 'densitizer.sce' for comparison. */
+   
+  /* Declare variables */
+  double a, b;
+  int y;
+  
+  /* Clean input */
+  if (x > 100) {
+	  x = 100;
+  }
+  else if (x < 1) {
+	  x = 1;
+  }
+  
+  /* Set exp function params */
+  a=211.538187957;
+  b=-0.0488730165089;
+  
+  /* Calculate result, used in xmatrix_init()
+   * and hack_matrix() */
+  y=a*exp(b*x);
+  
+  /*printf("\nDensitizer. x=%d, y=%d", x, y);*/
+  return(y);
+}
+
+
 static void *
 xmatrix_init (Display *dpy, Window window)
 {
@@ -765,7 +810,7 @@ xmatrix_init (Display *dpy, Window window)
     calloc (sizeof(m_cell), state->grid_width * state->grid_height);
   state->feeders = (m_feeder *) calloc (sizeof(m_feeder), state->grid_width);
 
-  state->density = get_integer_resource (dpy, "density", "Integer");
+  state->density = densitizer(get_integer_resource (dpy, "density", "Integer"));
 
   insert = get_string_resource(dpy, "insert", "Insert");
   if (insert && !strcmp(insert, "top"))
@@ -1174,28 +1219,6 @@ redraw_cells (m_state *state, Bool active)
 }
 
 
-static int
-densitizer (m_state *state)
-{
-  /* Horrid kludge that converts percentages (density of screen coverage)
-     to the parameter that actually controls this.  I got this mapping
-     empirically, on a 1024x768 screen.  Sue me. */
-  if      (state->density < 10) return 85;
-  else if (state->density < 15) return 60;
-  else if (state->density < 20) return 45;
-  else if (state->density < 25) return 25;
-  else if (state->density < 30) return 20;
-  else if (state->density < 35) return 15;
-  else if (state->density < 45) return 10;
-  else if (state->density < 50) return 8;
-  else if (state->density < 55) return 7;
-  else if (state->density < 65) return 5;
-  else if (state->density < 80) return 3;
-  else if (state->density < 90) return 2;
-  else return 1;
-}
-
-
 static void
 hack_text (m_state *state)
 {
@@ -1595,7 +1618,7 @@ hack_matrix (m_state *state)
       if (f->remaining > 0)	/* never change if pipe isn't empty */
         continue;
 
-      if ((random() % densitizer(state)) != 0) /* then change N% of the time */
+      if ((random() % state->density) != 0) /* then change N% of the time */
         continue;
 
       f->remaining = 3 + (random() % state->grid_height);
