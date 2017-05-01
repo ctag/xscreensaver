@@ -37,7 +37,7 @@ Interested in writing a new screen saver?
 See the parent of this repo for the rest of the normal README
 
 I'm also maintaining the AUR for this little excursion:
-https://aur4.archlinux.org/packages/xscreensaver-xmatrix-color/
+https://aur.archlinux.org/packages/xscreensaver-xmatrix-color/
 
 Currently I've
 - Added basic XBM/XPM color support to xmatrix
